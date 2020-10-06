@@ -69,15 +69,18 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
 
-    coinData.refreshCoinData(() {
-      updateUI(selectedCurrency);
-    });
+    updateUI();
   }
 
-  void updateUI(String selectedCurrency) {
-    setState(() {
-      this.price = coinData.getPriceIn(selectedCurrency);
-    });
+  void updateUI() async {
+    try {
+      await coinData.refreshCoinData();
+      setState(() {
+        this.price = coinData.getPriceIn(selectedCurrency);
+      });
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
   @override
