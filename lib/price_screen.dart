@@ -32,8 +32,8 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
+          price = coinData.getPriceIn(selectedCurrency);
         });
-        print(value);
       },
     );
   }
@@ -53,9 +53,16 @@ class _PriceScreenState extends State<PriceScreen> {
     }
 
     return CupertinoPicker(
+      scrollController: FixedExtentScrollController(initialItem: 19),
+      looping: true,
+      useMagnifier: true,
+      magnification: 1.2,
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
-        print(selectedIndex);
+        setState(() {
+          selectedCurrency = items[selectedIndex].data;
+          price = coinData.getPriceIn(selectedCurrency);
+        });
       },
       children: items,
     );
@@ -115,7 +122,8 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: Platform.isIOS ? iOSPicker() : materialDropdown(),
+            // child: Platform.isIOS ? iOSPicker() : materialDropdown(),
+            child: iOSPicker(),
           ),
         ],
       ),

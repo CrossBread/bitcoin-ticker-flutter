@@ -33,17 +33,16 @@ const List<String> cryptoList = [
 
 const apiKey =
     '286567abd9afaecc54408971b58234c8f316b028e580341065b2f5206adf634a';
-const url = 'https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD';
+final symbolsList = currenciesList.join(',');
+final url =
+    'https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=$symbolsList';
 
 class CoinData {
   dynamic cryptoSymbolData;
 
-  Future<void> refreshCoinData([Function callback]) async {
+  Future<void> refreshCoinData() async {
     cryptoSymbolData = await getData();
-    print('refresh: ${cryptoSymbolData['USD']}');
-    if (callback != null) {
-      callback();
-    }
+    print('Data fetched!');
   }
 
   String getPriceIn(String currencyCode) {
