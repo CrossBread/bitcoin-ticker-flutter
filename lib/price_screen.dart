@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
-import 'coin_data.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -10,8 +11,8 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
 
-  List<DropdownMenuItem<String>> getDropdownItems() {
-    List<DropdownMenuItem<String>> items = [];
+  DropdownButton<String> materialDropdown() {
+    List<DropdownMenuItem<String>> dropdownItems = [];
 
     for (String currency in currenciesList) {
       DropdownMenuItem<String> item = DropdownMenuItem(
@@ -19,10 +20,42 @@ class _PriceScreenState extends State<PriceScreen> {
         value: currency,
       );
 
+      dropdownItems.add(item);
+    }
+
+    return DropdownButton<String>(
+      value: selectedCurrency,
+      items: dropdownItems,
+      onChanged: (value) {
+        setState(() {
+          selectedCurrency = value;
+        });
+        print(value);
+      },
+    );
+  }
+
+  CupertinoPicker iOSPicker() {
+    List<Text> items = [];
+
+    for (String currency in currenciesList) {
+      Text item = Text(
+        currency,
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      );
+
       items.add(item);
     }
 
-    return items;
+    return CupertinoPicker(
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: items,
+    );
   }
 
   @override
@@ -61,16 +94,7 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: DropdownButton<String>(
-              value: selectedCurrency,
-              items: getDropdownItems(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCurrency = value;
-                });
-                print(value);
-              },
-            ),
+            child: Platform.isIOS ? iOSPicker() : materialDropdown(),
           ),
         ],
       ),
