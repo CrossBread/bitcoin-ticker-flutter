@@ -12,7 +12,9 @@ class _PriceScreenState extends State<PriceScreen> {
   CoinData coinData = CoinData();
 
   String selectedCurrency = 'USD';
-  String price = '?';
+  String btcPrice = '?';
+  String ethPrice = '?';
+  String ltcPrice = '?';
 
   DropdownButton<String> materialDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -32,7 +34,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
-          price = coinData.getPriceIn(selectedCurrency);
+          btcPrice = coinData.getPriceIn(selectedCurrency);
         });
       },
     );
@@ -61,7 +63,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
           selectedCurrency = items[selectedIndex].data;
-          price = coinData.getPriceIn(selectedCurrency);
+          btcPrice = coinData.getPriceIn(selectedCurrency);
         });
       },
       children: items,
@@ -79,7 +81,7 @@ class _PriceScreenState extends State<PriceScreen> {
     try {
       await coinData.refreshCoinData();
       setState(() {
-        this.price = coinData.getPriceIn(selectedCurrency);
+        this.btcPrice = coinData.getPriceIn(selectedCurrency);
       });
     } on Exception catch (e) {
       print(e);
@@ -96,26 +98,22 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $price $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PriceRow(
+                  coinSymbol: 'BTC',
+                  btcPrice: btcPrice,
+                  selectedCurrency: selectedCurrency),
+              PriceRow(
+                  coinSymbol: 'ETH',
+                  btcPrice: ethPrice,
+                  selectedCurrency: selectedCurrency),
+              PriceRow(
+                  coinSymbol: 'LTC',
+                  btcPrice: ltcPrice,
+                  selectedCurrency: selectedCurrency),
+            ],
           ),
           Container(
             height: 150.0,
@@ -126,6 +124,43 @@ class _PriceScreenState extends State<PriceScreen> {
             child: iOSPicker(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PriceRow extends StatelessWidget {
+  const PriceRow({
+    @required this.btcPrice,
+    @required this.selectedCurrency,
+    @required this.coinSymbol,
+  });
+
+  final String coinSymbol;
+  final String btcPrice;
+  final String selectedCurrency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+      child: Card(
+        color: Colors.lightBlueAccent,
+        elevation: 5.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 35.0),
+          child: Text(
+            '1 $coinSymbol = $btcPrice $selectedCurrency',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }
