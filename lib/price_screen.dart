@@ -34,7 +34,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
-          btcPrice = coinData.getPriceIn(selectedCurrency);
+          updatePriceValues();
         });
       },
     );
@@ -63,7 +63,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
           selectedCurrency = items[selectedIndex].data;
-          btcPrice = coinData.getPriceIn(selectedCurrency);
+          updatePriceValues();
         });
       },
       children: items,
@@ -81,11 +81,17 @@ class _PriceScreenState extends State<PriceScreen> {
     try {
       await coinData.refreshCoinData();
       setState(() {
-        this.btcPrice = coinData.getPriceIn(selectedCurrency);
+        updatePriceValues();
       });
     } on Exception catch (e) {
       print(e);
     }
+  }
+
+  void updatePriceValues() {
+    btcPrice = coinData.getPriceIn('BTC', selectedCurrency);
+    ethPrice = coinData.getPriceIn('ETH', selectedCurrency);
+    ltcPrice = coinData.getPriceIn('LTC', selectedCurrency);
   }
 
   @override
