@@ -1,3 +1,4 @@
+import 'package:bitcoin_ticker/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +11,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   CoinData coinData = CoinData();
+  List<CryptoCards> cryptoCards = [];
 
   String selectedCurrency = 'USD';
   String btcPrice = '?';
@@ -34,7 +36,8 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
-          updatePriceValues();
+          // updatePriceValues();
+          updateUI();
         });
       },
     );
@@ -63,7 +66,8 @@ class _PriceScreenState extends State<PriceScreen> {
       onSelectedItemChanged: (selectedIndex) {
         setState(() {
           selectedCurrency = items[selectedIndex].data;
-          updatePriceValues();
+          // updatePriceValues();
+          updateUI();
         });
       },
       children: items,
@@ -74,17 +78,34 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
 
-    updateUI();
+    cacheData();
   }
 
-  void updateUI() async {
+  void cacheData() async {
     try {
       await coinData.refreshCoinData();
       setState(() {
-        updatePriceValues();
+        updateUI();
       });
     } on Exception catch (e) {
       print(e);
+    }
+  }
+
+  void updateUI() async {
+    // updatePriceValues();
+    //
+    // cryptoCards.add(CryptoCards(
+    //     cryptoPrice: '10', selectedCurrency: 'USD', coinSymbol: 'BTC'));
+
+    cryptoCards.clear();
+    for (var cryptoSymbol in coinData.topCryptoMap.values) {
+      cryptoCards.add(CryptoCards(
+          cryptoPrice: cryptoSymbol.prices[selectedCurrency].toStringAsFixed(0),
+          selectedCurrency: selectedCurrency,
+          coinSymbol: cryptoSymbol.symbol));
+
+      if (cryptoCards.length > 5) break; // TODO: Remove after overflow is fixed
     }
   }
 
@@ -106,20 +127,7 @@ class _PriceScreenState extends State<PriceScreen> {
         children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PriceRow(
-                  coinSymbol: 'BTC',
-                  btcPrice: btcPrice,
-                  selectedCurrency: selectedCurrency),
-              PriceRow(
-                  coinSymbol: 'ETH',
-                  btcPrice: ethPrice,
-                  selectedCurrency: selectedCurrency),
-              PriceRow(
-                  coinSymbol: 'LTC',
-                  btcPrice: ltcPrice,
-                  selectedCurrency: selectedCurrency),
-            ],
+            children: cryptoCards,
           ),
           Container(
             height: 150.0,
@@ -135,15 +143,15 @@ class _PriceScreenState extends State<PriceScreen> {
   }
 }
 
-class PriceRow extends StatelessWidget {
-  const PriceRow({
-    @required this.btcPrice,
+class CryptoCards extends StatelessWidget {
+  const CryptoCards({
+    @required this.cryptoPrice,
     @required this.selectedCurrency,
     @required this.coinSymbol,
   });
 
   final String coinSymbol;
-  final String btcPrice;
+  final String cryptoPrice;
   final String selectedCurrency;
 
   @override
@@ -159,7 +167,7 @@ class PriceRow extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 35.0),
           child: Text(
-            '1 $coinSymbol = $btcPrice $selectedCurrency',
+            '1 $coinSymbol = $cryptoPrice $selectedCurrency',
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 20.0,

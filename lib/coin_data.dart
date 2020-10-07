@@ -93,9 +93,10 @@ class CoinData {
   }
 
   String getPriceIn(String cryptoSymbol, String fiatSymbol) {
-    return cryptoSymbolPriceData != null
-        ? cryptoSymbolPriceData[cryptoSymbol][fiatSymbol].toString()
-        : 'N/A';
+    // return cryptoSymbolPriceData != null
+    //     ? cryptoSymbolPriceData[cryptoSymbol][fiatSymbol].toString()
+    //     : 'N/A';
+    return topCryptoMap[cryptoSymbol].getPrice(fiatSymbol).toStringAsFixed(0);
   }
 
   Future<dynamic> getData(String url) async {
