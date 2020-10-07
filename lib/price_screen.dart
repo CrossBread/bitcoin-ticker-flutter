@@ -19,7 +19,7 @@ class _PriceScreenState extends State<PriceScreen> {
   DropdownButton<String> materialDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
 
-    for (String currency in currenciesList) {
+    for (String currency in currencySymbolsList) {
       DropdownMenuItem<String> item = DropdownMenuItem(
         child: Text(currency),
         value: currency,
@@ -43,7 +43,7 @@ class _PriceScreenState extends State<PriceScreen> {
   CupertinoPicker iOSPicker() {
     List<Text> items = [];
 
-    for (String currency in currenciesList) {
+    for (String currency in currencySymbolsList) {
       Text item = Text(
         currency,
         style: TextStyle(

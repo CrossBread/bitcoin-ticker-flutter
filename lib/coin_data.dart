@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:http/http.dart' as Html;
 import 'dart:convert';
 
-const List<String> currenciesList = [
+import 'crypto_currency.dart';
+
+const List<String> currencySymbolsList = [
   'AUD',
   'BRL',
   'CAD',
@@ -27,7 +29,7 @@ const List<String> currenciesList = [
   'ZAR'
 ];
 
-const List<String> cryptoList = [
+const List<String> defaultCryptoList = [
   'BTC',
   'ETH',
   'LTC',
@@ -35,30 +37,63 @@ const List<String> cryptoList = [
 
 const apiKey =
     '286567abd9afaecc54408971b58234c8f316b028e580341065b2f5206adf634a';
-final fiatCurrencySymbols = currenciesList.join(',');
-final cryptoCurrencySymbols = cryptoList.join(',');
-final url =
+final fiatCurrencySymbols = currencySymbolsList.join(',');
+final cryptoCurrencySymbols = defaultCryptoList.join(',');
+final defaultPriceUrl =
     'https://min-api.cryptocompare.com/data/pricemulti?fsyms=$cryptoCurrencySymbols&tsyms=$fiatCurrencySymbols';
+final topCryptoUrl =
+    'https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD';
 
 class CoinData {
-  dynamic cryptoSymbolData;
+  List<String> topCryptoSymbolsList = [];
+  List<CryptoSymbol> topCryptoList = [];
+  String topCryptoPriceUrl;
+
+  dynamic cryptoTopSybmolData;
+  dynamic cryptoSymbolPriceData;
 
   Future<void> refreshCoinData() async {
-    cryptoSymbolData = await getData();
-    print('Data fetched!');
+    cryptoTopSybmolData = await getData(topCryptoUrl);
+    print('Top Symbol Data fetched!');
+
+    for (var node in cryptoTopSybmolData['Data']) {
+      // /Data/CoinInfo/Name
+      // /Data/CoinInfo/FullName
+      // /Data/CoinInfo/ImageUrl
+      // /Data/CoinInfo/Url
+      // /Data/CoinInfo/Rating/Weiss/Market/PerformanceRating
+      CryptoSymbol crypto = CryptoSymbol(
+          symbol: node['CoinInfo']['Name'],
+          name: node['CoinInfo']['FullName'],
+          imageUrl: node['CoinInfo']['ImageUrl'],
+          infoUrl: node['CoinInfo']['Url'],
+          performanceRating: node['CoinInfo']['Rating']['Weiss']
+              ['MarketPerformanceRating']);
+
+      topCryptoSymbolsList.add(crypto.symbol);
+    }
+
+    if (topCryptoSymbolsList == null || topCryptoSymbolsList.length == 0) {
+      cryptoSymbolPriceData = await getData(defaultPriceUrl);
+    } else {
+      String topCryptoSymbols = topCryptoSymbolsList.join(',');
+      topCryptoPriceUrl =
+          'https://min-api.cryptocompare.com/data/pricemulti?fsyms=$topCryptoSymbols&tsyms=$fiatCurrencySymbols';
+      cryptoSymbolPriceData = await getData(topCryptoPriceUrl);
+      print(cryptoSymbolPriceData);
+    }
+    print('Price Data fetched!');
   }
 
   String getPriceIn(String cryptoSymbol, String fiatSymbol) {
-    return cryptoSymbolData != null
-        ? cryptoSymbolData[cryptoSymbol][fiatSymbol].toString()
+    return cryptoSymbolPriceData != null
+        ? cryptoSymbolPriceData[cryptoSymbol][fiatSymbol].toString()
         : 'N/A';
   }
 
-  Future<dynamic> getData() async {
+  Future<dynamic> getData(String url) async {
     Html.Response response = await Html.get(url, headers: {'Apikey': apiKey});
     if (response.statusCode == 200) {
-      print(response.body);
-
       if (response.body.toLowerCase().contains('error')) {
         throw HttpException(
             'Request for data returned an error:\n$url\nbody:${response.body}');
