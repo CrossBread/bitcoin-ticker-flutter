@@ -37,6 +37,7 @@ const List<String> defaultCryptoList = [
 
 const apiKey =
     '286567abd9afaecc54408971b58234c8f316b028e580341065b2f5206adf634a';
+const logoImageUrlBase = 'https://www.cryptocompare.com';
 final fiatCurrencySymbols = currencySymbolsList.join(',');
 final cryptoCurrencySymbols = defaultCryptoList.join(',');
 final defaultPriceUrl =
@@ -64,7 +65,7 @@ class CoinData {
       CryptoSymbol crypto = CryptoSymbol(
           symbol: node['CoinInfo']['Name'],
           name: node['CoinInfo']['FullName'],
-          imageUrl: node['CoinInfo']['ImageUrl'],
+          imageUrl: logoImageUrlBase + node['CoinInfo']['ImageUrl'],
           infoUrl: node['CoinInfo']['Url'],
           performanceRating: node['CoinInfo']['Rating']['Weiss']
               ['MarketPerformanceRating']);

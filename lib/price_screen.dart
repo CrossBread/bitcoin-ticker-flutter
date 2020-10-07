@@ -101,9 +101,11 @@ class _PriceScreenState extends State<PriceScreen> {
     cryptoCards.clear();
     for (var cryptoSymbol in coinData.topCryptoMap.values) {
       cryptoCards.add(CryptoCards(
-          cryptoPrice: cryptoSymbol.prices[selectedCurrency].toStringAsFixed(0),
-          selectedCurrency: selectedCurrency,
-          coinSymbol: cryptoSymbol.symbol));
+        cryptoPrice: cryptoSymbol.prices[selectedCurrency].toStringAsFixed(0),
+        selectedCurrency: selectedCurrency,
+        coinSymbol: cryptoSymbol.symbol,
+        logoUrl: cryptoSymbol.imageUrl,
+      ));
 
       if (cryptoCards.length > 5) break; // TODO: Remove after overflow is fixed
     }
@@ -148,16 +150,18 @@ class CryptoCards extends StatelessWidget {
     @required this.cryptoPrice,
     @required this.selectedCurrency,
     @required this.coinSymbol,
+    @required this.logoUrl,
   });
 
   final String coinSymbol;
   final String cryptoPrice;
   final String selectedCurrency;
+  final String logoUrl;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+      padding: EdgeInsets.fromLTRB(18.0, 8.0, 18.0, 0),
       child: Card(
         color: Colors.lightBlueAccent,
         elevation: 5.0,
@@ -166,13 +170,23 @@ class CryptoCards extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 35.0),
-          child: Text(
-            '1 $coinSymbol = $cryptoPrice $selectedCurrency',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 20.0,
-              color: Colors.white,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '1 $coinSymbol = $cryptoPrice $selectedCurrency',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  color: Colors.white,
+                ),
+              ),
+              CircleAvatar(
+                radius: 20.0,
+                backgroundColor: Colors.blue.shade800,
+                backgroundImage: NetworkImage(logoUrl),
+              ),
+            ],
           ),
         ),
       ),
