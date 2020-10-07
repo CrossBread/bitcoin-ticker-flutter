@@ -45,8 +45,7 @@ final topCryptoUrl =
     'https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD';
 
 class CoinData {
-  List<String> topCryptoSymbolsList = [];
-  List<CryptoSymbol> topCryptoList = [];
+  Map<String, CryptoSymbol> topCryptoMap = {};
   String topCryptoPriceUrl;
 
   dynamic cryptoTopSybmolData;
@@ -70,17 +69,25 @@ class CoinData {
           performanceRating: node['CoinInfo']['Rating']['Weiss']
               ['MarketPerformanceRating']);
 
-      topCryptoSymbolsList.add(crypto.symbol);
+      topCryptoMap[crypto.symbol] = crypto;
+      // topCryptoSymbolsList.add(crypto.symbol);
     }
 
-    if (topCryptoSymbolsList == null || topCryptoSymbolsList.length == 0) {
+    if (topCryptoMap.keys.length == 0) {
       cryptoSymbolPriceData = await getData(defaultPriceUrl);
     } else {
-      String topCryptoSymbols = topCryptoSymbolsList.join(',');
+      String topCryptoSymbols = topCryptoMap.keys.join(',');
       topCryptoPriceUrl =
           'https://min-api.cryptocompare.com/data/pricemulti?fsyms=$topCryptoSymbols&tsyms=$fiatCurrencySymbols';
       cryptoSymbolPriceData = await getData(topCryptoPriceUrl);
-      print(cryptoSymbolPriceData);
+
+      for (var cryptoSymbol in cryptoSymbolPriceData.keys) {
+        var pricesMap = cryptoSymbolPriceData[cryptoSymbol];
+        for (var fiatSymbol in pricesMap.keys) {
+          topCryptoMap[cryptoSymbol].prices[fiatSymbol] =
+              double.parse(pricesMap[fiatSymbol].toString());
+        }
+      }
     }
     print('Price Data fetched!');
   }
